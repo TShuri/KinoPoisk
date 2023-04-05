@@ -1,6 +1,7 @@
 package com.shuri.kinopoisk;
 
 import android.os.Bundle;
+import android.widget.LinearLayout;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
