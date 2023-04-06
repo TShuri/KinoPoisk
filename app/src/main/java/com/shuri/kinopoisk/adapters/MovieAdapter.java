@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.shuri.kinopoisk.R;
 import com.shuri.kinopoisk.models.Movie;
-import com.shuri.kinopoisk.ui.home.HomeFragment;
 
 import java.util.List;
 
@@ -31,7 +30,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = inflater.inflate(R.layout.card_movie, parent, false);
-        //View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_movie, parent, false);
         return new ViewHolder(view);
     }
 

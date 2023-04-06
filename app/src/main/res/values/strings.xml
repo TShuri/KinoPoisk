@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">KinoPoisk</string>
     <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_favorites">Favorites</string>
+    <string name="title_search">Search</string>
     <string name="contentDescription">Failed to load img</string>
     <string name="textNameMovie">Name movie</string>
     <string name="textYearMovie">Year movie</string>

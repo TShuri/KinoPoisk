@@ -8,7 +8,7 @@ public class Movie {
     private String nameRu; // название на русском
     private int year; // год
     private String posterUrlPreview; // ссылка на обложку
-    private float rating; // рейтинг
+    private double rating; // рейтинг
     private List<String> genres; // жанры
 
     public Movie(int i) {
@@ -19,6 +19,15 @@ public class Movie {
         this.rating = 8;
         genres = new ArrayList<>();
         genres.add("Фантастика");
+    }
+
+    public Movie(int _filmId, String _nameRu, int _year, String _posterUrlPreview, double _rating, List<String> _genres) {
+        this.filmId = _filmId;
+        this.nameRu = _nameRu;
+        this.year = _year;
+        this.posterUrlPreview = _posterUrlPreview;
+        this.rating = _rating;
+        this.genres = _genres;
     }
 
     public int getFilmId() {
@@ -53,7 +62,7 @@ public class Movie {
         this.posterUrlPreview = posterUrlPreview;
     }
 
-    public float getRating() {
+    public double getRating() {
         return rating;
     }
 

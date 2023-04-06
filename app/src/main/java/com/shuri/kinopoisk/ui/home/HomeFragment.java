@@ -1,16 +1,11 @@
 package com.shuri.kinopoisk.ui.home;
 
-import android.content.Context;
-import android.media.Image;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,8 +14,9 @@ import com.shuri.kinopoisk.R;
 import com.shuri.kinopoisk.adapters.MovieAdapter;
 import com.shuri.kinopoisk.databinding.FragmentHomeBinding;
 import com.shuri.kinopoisk.models.Movie;
+import com.shuri.kinopoisk.parsers.JSONSimpleParser;
 
-import java.lang.reflect.Array;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,9 +36,17 @@ public class HomeFragment extends Fragment {
 
 
         movies = new ArrayList<>();
-        initialMovies();
+        JSONSimpleParser jsonSimpleParser = new JSONSimpleParser();
+        try {
+            jsonSimpleParser.parseToString(getContext());
+            movies = jsonSimpleParser.parsing();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        //initialMovies();
         RecyclerView recyclerView = root.findViewById(R.id.recyclerView);
-        //recyclerView.setAdapter(new MovieAdapter(movies));
         MovieAdapter adapter = new MovieAdapter(root.getContext(), movies);
         recyclerView.setAdapter(adapter);
 
