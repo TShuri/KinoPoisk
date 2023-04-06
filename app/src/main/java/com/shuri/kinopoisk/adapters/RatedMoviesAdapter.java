@@ -17,33 +17,28 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
-
+public class RatedMoviesAdapter extends RecyclerView.Adapter<RatedMoviesAdapter.ViewHolder> {
     private final LayoutInflater inflater;
     private final List<Movie> movies;
 
-    public MovieAdapter(Context context, List<Movie> movies) {
+    public RatedMoviesAdapter(Context context, List<Movie> movies) {
         this.movies = movies;
         this.inflater = LayoutInflater.from(context);
     }
 
-
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = inflater.inflate(R.layout.card_movie, parent, false);
+        View view = inflater.inflate(R.layout.card_movie_for_favorites, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Movie movie = movies.get(position);
-        //holder.imageMovie.setImageResource(R.drawable.movie_logo);
-        Picasso.get().load(movie.getPosterUrlPreview()).into(holder.imageMovie);
+        Picasso.get().load(movie.getPosterUrlPreview()).into(holder.imageSmallCard);
         holder.nameMovie.setText(movie.getNameRu());
-        holder.yearMovie.setText(String.valueOf(movie.getYear()));
         holder.ratingMovie.setText(String.valueOf(movie.getRating()));
-        holder.genreMovie.setText(movie.getStringGenres());
     }
 
     @Override
@@ -52,18 +47,13 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        final LinearLayout cardLayout, textLayout;
-        final ImageView imageMovie;
-        final TextView nameMovie, genreMovie, yearMovie, ratingMovie;
+        final ImageView imageSmallCard;
+        final TextView nameMovie, ratingMovie;
         ViewHolder(View view){
             super(view);
-            cardLayout = view.findViewById(R.id.cardLayout);
-            imageMovie = view.findViewById(R.id.imageMovie);
-            textLayout = view.findViewById(R.id.textLayout);
-            nameMovie = view.findViewById(R.id.textNameMovie);
-            genreMovie = view.findViewById(R.id.textGenreMovie);
-            yearMovie = view.findViewById(R.id.textYearMovie);
-            ratingMovie = view.findViewById(R.id.textRatingMovie);
+            imageSmallCard = view.findViewById(R.id.imageSmallCard);
+            nameMovie = view.findViewById(R.id.nameMovie);
+            ratingMovie = view.findViewById(R.id.ratingMovie);
         }
     }
 }

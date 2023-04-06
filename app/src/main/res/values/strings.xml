@@ -8,4 +8,11 @@
     <string name="textYearMovie">Year movie</string>
     <string name="textRatingMovie">Rating movie</string>
     <string name="textGenreMovie">Genre movie</string>
+    <string name="titleUnwatched">Буду смотреть</string>
+    <string name="titleWatched">Просмотренные</string>
+    <string name="titleRated">Оцененные</string>
+    <string name="textScrollView">It scroll view</string>
+    <string name="textCount">0</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

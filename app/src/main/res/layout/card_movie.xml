@@ -5,72 +5,69 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <ImageView
-        android:id="@+id/imageMovie"
-        android:layout_width="140dp"
-        android:layout_height="210dp"
-        android:contentDescription="@string/contentDescription"
+    <LinearLayout
+        android:id="@+id/cardLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/movie_logo" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <TextView
-        android:id="@+id/textNameMovie"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/textNameMovie"
-        android:textColor="@color/black"
-        android:textSize="16sp"
-        app:layout_constraintStart_toEndOf="@+id/imageMovie"
-        app:layout_constraintTop_toTopOf="parent" />
+        <ImageView
+            android:id="@+id/imageMovie"
+            android:layout_width="140dp"
+            android:layout_height="210dp"
+            android:layout_marginBottom="6dp"
+            android:contentDescription="@string/contentDescription"
+            app:srcCompat="@drawable/movie_logo" />
 
-    <TextView
-        android:id="@+id/textGenreMovie"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/textGenreMovie"
-        android:textColor="@color/black"
-        android:textSize="14sp"
-        app:layout_constraintStart_toEndOf="@+id/imageMovie"
-        app:layout_constraintTop_toBottomOf="@+id/textNameMovie" />
+        <LinearLayout
+            android:id="@+id/textLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/textYearMovie"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/textYearMovie"
-        android:textColor="@color/black"
-        android:textSize="14sp"
-        app:layout_constraintStart_toEndOf="@+id/imageMovie"
-        app:layout_constraintTop_toBottomOf="@+id/textGenreMovie" />
+            <TextView
+                android:id="@+id/textNameMovie"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/textNameMovie"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
 
-    <TextView
-        android:id="@+id/textRatingMovie"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/textRatingMovie"
-        android:textColor="@color/black"
-        android:textSize="14sp"
-        app:layout_constraintStart_toEndOf="@+id/imageMovie"
-        app:layout_constraintTop_toBottomOf="@+id/textYearMovie" />
+            <TextView
+                android:id="@+id/textYearMovie"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/textYearMovie"
+                android:textColor="@color/black"
+                android:textSize="14sp" />
 
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrier"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:constraint_referenced_ids="imageMovie, textRatingMovie"
-        app:barrierDirection="bottom" />
+            <TextView
+                android:id="@+id/textGenreMovie"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/textGenreMovie"
+                android:textColor="@color/black"
+                android:textSize="14sp" />
 
-    <Space
-        android:layout_width="wrap_content"
-        android:layout_height="6dp"
-        app:layout_constraintTop_toBottomOf="@id/barrier"/>
+            <TextView
+                android:id="@+id/textRatingMovie"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/textRatingMovie"
+                android:textColor="@color/black"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
