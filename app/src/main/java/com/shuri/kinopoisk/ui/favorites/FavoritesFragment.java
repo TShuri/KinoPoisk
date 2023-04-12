@@ -4,10 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -15,7 +11,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.shuri.kinopoisk.R;
-import com.shuri.kinopoisk.adapters.RatedMoviesAdapter;
+import com.shuri.kinopoisk.adapters.FavRecViewAdapter;
 import com.shuri.kinopoisk.databinding.FragmentFavoritesBinding;
 import com.shuri.kinopoisk.models.Movie;
 
@@ -41,28 +37,10 @@ public class FavoritesFragment extends Fragment {
 
 
         RecyclerView ratedRecyclerView = root.findViewById(R.id.ratedRecyclerView);
-        RatedMoviesAdapter ratedMoviesAdapter = new RatedMoviesAdapter(root.getContext(), movies);
-        ratedRecyclerView.setAdapter(ratedMoviesAdapter);
+        FavRecViewAdapter favRecViewAdapter = new FavRecViewAdapter(root.getContext(), movies);
+        ratedRecyclerView.setAdapter(favRecViewAdapter);
 
 
-        Button add = root.findViewById(R.id.buttonAdd);
-
-        Button delete = root.findViewById(R.id.buttonDelete);
-        add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                movies.add(newMovie());
-                ratedMoviesAdapter.notifyDataSetChanged();
-            }
-        });
-
-        delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                movies.remove(1);
-                ratedMoviesAdapter.notifyDataSetChanged();
-            }
-        });
 
 
         //final TextView textView = binding.textDashboard;
@@ -76,20 +54,10 @@ public class FavoritesFragment extends Fragment {
         binding = null;
     }
 
-    public View newCardForScrollView() {
-        final View view = getLayoutInflater().inflate(R.layout.card_movie_for_favorites, null);
-        return view;
-    }
-
     private void initialMovies() {
         movies.add(new Movie(1));
         movies.add(new Movie(2));
         movies.add(new Movie(3));
         movies.add(new Movie(4));
-    }
-
-    private Movie newMovie() {
-        int i = movies.size() + 1;
-        return new Movie(i);
     }
 }

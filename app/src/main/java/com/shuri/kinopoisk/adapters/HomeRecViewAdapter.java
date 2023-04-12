@@ -9,22 +9,31 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.shuri.kinopoisk.MainActivity;
 import com.shuri.kinopoisk.R;
 import com.shuri.kinopoisk.models.Movie;
+import com.shuri.kinopoisk.ui.MovieFragment;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
+public class HomeRecViewAdapter extends RecyclerView.Adapter<HomeRecViewAdapter.ViewHolder> {
 
     private final LayoutInflater inflater;
     private final List<Movie> movies;
+    private Context context;
+    private MainActivity activity;
 
-    public MovieAdapter(Context context, List<Movie> movies) {
+
+    public HomeRecViewAdapter(Context context, List<Movie> movies, MainActivity activ) {
         this.movies = movies;
         this.inflater = LayoutInflater.from(context);
+        this.context = context;
+        this.activity = activ;
     }
 
 
@@ -40,6 +49,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         Movie movie = movies.get(position);
         //holder.imageMovie.setImageResource(R.drawable.movie_logo);
         Picasso.get().load(movie.getPosterUrlPreview()).into(holder.imageMovie);
+        holder.imageMovie.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                activity.showMovieFragment(movie.getFilmId());
+            }
+        });
         holder.nameMovie.setText(movie.getNameRu());
         holder.yearMovie.setText(String.valueOf(movie.getYear()));
         holder.ratingMovie.setText(String.valueOf(movie.getRating()));

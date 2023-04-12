@@ -1,21 +1,29 @@
 package com.shuri.kinopoisk;
 
 import android.os.Bundle;
-import android.widget.LinearLayout;
+import android.util.Log;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.shuri.kinopoisk.databinding.ActivityMainBinding;
+import com.shuri.kinopoisk.databinding.FragmentHomeBinding;
+import com.shuri.kinopoisk.ui.MovieFragment;
 
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
+
+    FragmentManager fragmentManager;
+
+    NavController navController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,9 +38,18 @@ public class MainActivity extends AppCompatActivity {
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_home, R.id.navigation_favorites, R.id.navigation_search)
                 .build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
+        navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
+
+        fragmentManager = getSupportFragmentManager();
+
     }
 
+    public void showMovieFragment(int idMovie) {
+        Bundle bundle = new Bundle();
+        bundle.putInt("id", idMovie);
+
+        navController.navigate(R.id.action_navigation_home_to_navigation_movie2, bundle);
+    }
 }

@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,11 +16,11 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class RatedMoviesAdapter extends RecyclerView.Adapter<RatedMoviesAdapter.ViewHolder> {
+public class FavRecViewAdapter extends RecyclerView.Adapter<FavRecViewAdapter.ViewHolder> {
     private final LayoutInflater inflater;
     private final List<Movie> movies;
 
-    public RatedMoviesAdapter(Context context, List<Movie> movies) {
+    public FavRecViewAdapter(Context context, List<Movie> movies) {
         this.movies = movies;
         this.inflater = LayoutInflater.from(context);
     }
@@ -36,7 +35,8 @@ public class RatedMoviesAdapter extends RecyclerView.Adapter<RatedMoviesAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Movie movie = movies.get(position);
-        Picasso.get().load(movie.getPosterUrlPreview()).into(holder.imageSmallCard);
+        holder.imageSmallCard.setImageResource(R.drawable.movie_logo);
+        //Picasso.get().load(movie.getPosterUrlPreview()).into(holder.imageSmallCard);
         holder.nameMovie.setText(movie.getNameRu());
         holder.ratingMovie.setText(String.valueOf(movie.getRating()));
     }

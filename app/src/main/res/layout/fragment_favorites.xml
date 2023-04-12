@@ -26,6 +26,7 @@
                 android:id="@+id/titleUnwatchLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
                 android:layout_marginBottom="20dp"
                 android:orientation="horizontal">
 
@@ -47,19 +48,13 @@
                     android:textSize="18sp" />
             </LinearLayout>
 
-            <HorizontalScrollView
-                android:id="@+id/unwatchScrollView"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/UnwatchRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:contentDescription="@string/textScrollView">
-
-                <LinearLayout
-                    android:id="@+id/unwatchLayout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-                </LinearLayout>
-            </HorizontalScrollView>
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
             <LinearLayout
                 android:id="@+id/titleWatchLayout"
@@ -87,19 +82,13 @@
                     android:textSize="18sp" />
             </LinearLayout>
 
-            <HorizontalScrollView
-                android:id="@+id/WatchScrollView"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/WatchRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:contentDescription="@string/textScrollView">
-
-                <LinearLayout
-                    android:id="@+id/WatchLayout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-                </LinearLayout>
-            </HorizontalScrollView>
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
             <LinearLayout
                 android:id="@+id/titleRatedLayout"
@@ -135,18 +124,6 @@
                 android:layout_weight="1"
                 android:orientation="horizontal"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-
-            <Button
-                android:id="@+id/buttonAdd"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Add" />
-
-            <Button
-                android:id="@+id/buttonDelete"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Delete" />
 
 
         </LinearLayout>
