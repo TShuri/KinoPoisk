@@ -52,15 +52,7 @@ public class HomeFragment extends Fragment{
         }
 
         fragmentManager = getActivity().getSupportFragmentManager();
-        Button buttonTest = root.findViewById(R.id.buttonTest);
-        buttonTest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.homeLayout, new MovieFragment());
-                fragmentTransaction.commit();
-            }
-        });
+
 
 
         //initialMovies();

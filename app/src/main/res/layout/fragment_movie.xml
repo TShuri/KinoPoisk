@@ -34,6 +34,7 @@
                 android:id="@+id/titleNameMovie"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
                 android:text="@string/textNameMovie"
                 android:textAlignment="center"
                 android:textSize="20sp" />
@@ -104,6 +105,55 @@
                     android:textAlignment="textStart"
                     android:textSize="12sp" />
             </TableRow>
+
+            <TextView
+                android:id="@+id/titleGenresMovie"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:text="@string/textGenreMovie"
+                android:textAlignment="center"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/titleSloganMovie"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="@string/textSlogan"
+                android:textAlignment="center"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/textDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="@string/textDescription"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/titleDescriptionMovie"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:text="@string/textDescription" />
+
+            <TextView
+                android:id="@+id/textRatingView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/textRating"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/titleRatingMovie"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/textRatingMovie"
+                android:textAlignment="center"
+                android:textSize="20sp" />
 
         </LinearLayout>
     </ScrollView>
