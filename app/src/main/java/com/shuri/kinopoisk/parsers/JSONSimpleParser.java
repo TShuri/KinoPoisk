@@ -22,23 +22,46 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JSONSimpleParser {
-    Object object;
-    JSONObject jsonObject;
-    List<Movie> movies;
-    String json = null;
+public final class JSONSimpleParser {
+    public String parseToString(Context context) throws FileNotFoundException {
+        String jsonStr = null;
 
-    public List<Movie> parsing() {
         try {
-            object = new JSONParser().parse(json);
+            InputStream inputStream = context.getAssets().open("data.json");
+            int sizeOfFile = inputStream.available();
+            byte[] bufferData = new byte[sizeOfFile];
+            inputStream.read(bufferData);
+            inputStream.close();
+            jsonStr = new String(bufferData, "UTF-8");
+        } catch (
+                IOException e) {
+            System.out.println(e.getMessage());
+        }
+
+        //System.out.println(json);
+        return jsonStr;
+    }
+
+    public static List<Movie> parseBufferToJson(BufferedReader buffer) {
+
+        return null;
+    }
+
+    public static List<Movie> parseForHome(BufferedReader buffer) {
+        Object o;
+        JSONObject jsonObj;
+        List<Movie> movies = new ArrayList<>();
+
+        try {
+            o = new JSONParser().parse(buffer);
+            jsonObj = (JSONObject) o;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
-        jsonObject = (JSONObject) object;
 
-        movies = new ArrayList<>();
-
-        JSONArray jsonArray = (JSONArray) jsonObject.get("releases");
+        JSONArray jsonArray = (JSONArray) jsonObj.get("releases");
         for (Object movieObject : jsonArray) {
             JSONObject movieJSON = (JSONObject) movieObject;
             JSONArray genresArray = (JSONArray) movieJSON.get("genres");
@@ -61,24 +84,7 @@ public class JSONSimpleParser {
                     rat,
                     genres));
         }
+
         return movies;
-    }
-
-    public String parseToString(Context context) throws FileNotFoundException {
-
-        try {
-            InputStream inputStream = context.getAssets().open("data.json");
-            int sizeOfFile = inputStream.available();
-            byte[] bufferData = new byte[sizeOfFile];
-            inputStream.read(bufferData);
-            inputStream.close();
-            json = new String(bufferData, "UTF-8");
-        } catch (
-                IOException e) {
-            System.out.println(e.getMessage());
-        }
-
-        //System.out.println(json);
-        return json;
     }
 }
