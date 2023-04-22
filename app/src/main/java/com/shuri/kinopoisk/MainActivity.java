@@ -46,10 +46,16 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void showMovieFragment(int idMovie) {
+    public void showMovieFragmentFromHome(int idMovie) {
         Bundle bundle = new Bundle();
         bundle.putInt("id", idMovie);
 
         navController.navigate(R.id.action_navigation_home_to_navigation_movie2, bundle);
+    }
+    public void showMovieFragmentFromSearch(int idMovie) {
+        Bundle bundle = new Bundle();
+        bundle.putInt("id", idMovie);
+
+        navController.navigate(R.id.action_navigation_search_to_navigation_movie, bundle);
     }
 }

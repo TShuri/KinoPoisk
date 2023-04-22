@@ -30,6 +30,10 @@ public class Movie {
         this.genres = _genres;
     }
 
+    public Movie() {
+
+    }
+
     public int getFilmId() {
         return filmId;
     }
@@ -66,7 +70,7 @@ public class Movie {
         return rating;
     }
 
-    public void setRating(float rating) {
+    public void setRating(double rating) {
         this.rating = rating;
     }
 

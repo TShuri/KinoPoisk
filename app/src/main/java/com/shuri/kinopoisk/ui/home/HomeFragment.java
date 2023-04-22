@@ -2,18 +2,13 @@ package com.shuri.kinopoisk.ui.home;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
-import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,10 +18,8 @@ import com.shuri.kinopoisk.adapters.HomeRecViewAdapter;
 import com.shuri.kinopoisk.databinding.FragmentHomeBinding;
 import com.shuri.kinopoisk.models.Movie;
 import com.shuri.kinopoisk.parsers.JSONSimpleParser;
-import com.shuri.kinopoisk.ui.MovieFragment;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
@@ -40,6 +33,8 @@ public class HomeFragment extends Fragment{
     private FragmentHomeBinding binding;
 
     public List<Movie> movies;
+    public RecyclerView recyclerView;
+    public HomeRecViewAdapter adapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,12 +54,10 @@ public class HomeFragment extends Fragment{
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        RecyclerView recyclerView = root.findViewById(R.id.recyclerView);
-        HomeRecViewAdapter adapter = new HomeRecViewAdapter(root.getContext(), movies, (MainActivity) getActivity());
+        recyclerView = root.findViewById(R.id.recyclerView);
+        adapter = new HomeRecViewAdapter(root.getContext(), movies, (MainActivity) getActivity());
         recyclerView.setAdapter(adapter);
 
-        //final TextView textView = binding.textHome;
-        //homeViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
 

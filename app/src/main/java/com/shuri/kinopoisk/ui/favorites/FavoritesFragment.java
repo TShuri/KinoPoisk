@@ -41,10 +41,6 @@ public class FavoritesFragment extends Fragment {
         ratedRecyclerView.setAdapter(favRecViewAdapter);
 
 
-
-
-        //final TextView textView = binding.textDashboard;
-        //favoritesViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
 
