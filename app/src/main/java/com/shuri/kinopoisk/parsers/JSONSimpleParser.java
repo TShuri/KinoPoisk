@@ -30,7 +30,7 @@ public class JSONSimpleParser {
             jsonStr = new String(bufferData, "UTF-8");
         } catch (
                 IOException e) {
-            System.out.println(e.getMessage());
+            //System.out.println(e.getMessage());
         }
 
         //System.out.println(json);

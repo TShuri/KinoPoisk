@@ -68,4 +68,12 @@ public class MainActivity extends AppCompatActivity {
 
         navController.navigate(R.id.action_navigation_search_to_navigation_movie, bundle);
     }
+
+    public void showMovieFragmentFromFavorites(Movie _movie) {
+        Bundle bundle = new Bundle();
+        bundle.putInt("id", _movie.getFilmId());
+        bundle.putString("url", _movie.getPosterUrlPreview());
+
+        navController.navigate(R.id.action_navigation_favorites_to_navigation_movie, bundle);
+    }
 }
