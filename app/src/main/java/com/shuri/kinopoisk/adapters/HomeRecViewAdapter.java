@@ -51,7 +51,7 @@ public class HomeRecViewAdapter extends RecyclerView.Adapter<HomeRecViewAdapter.
         holder.imageMovie.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                activity.showMovieFragmentFromHome(movie.getFilmId());
+                activity.showMovieFragmentFromHome(movie);
             }
         });
         holder.nameMovie.setText(movie.getNameRu());

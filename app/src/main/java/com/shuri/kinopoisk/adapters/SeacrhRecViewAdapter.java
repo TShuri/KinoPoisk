@@ -47,7 +47,7 @@ public class SeacrhRecViewAdapter extends RecyclerView.Adapter<SeacrhRecViewAdap
         holder.imageMovie.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                activity.showMovieFragmentFromSearch(movie.getFilmId());
+                activity.showMovieFragmentFromSearch(movie);
             }
         });
         holder.nameMovie.setText(movie.getNameRu());

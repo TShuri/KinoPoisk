@@ -1,5 +1,6 @@
 package com.shuri.kinopoisk;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -14,7 +15,9 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 
+import com.shuri.kinopoisk.databases.DBHelper;
 import com.shuri.kinopoisk.databinding.ActivityMainBinding;
+import com.shuri.kinopoisk.models.Movie;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -24,6 +27,9 @@ public class MainActivity extends AppCompatActivity {
     FragmentManager fragmentManager;
 
     NavController navController;
+
+    DBHelper dbHelper;
+    SQLiteDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,17 +50,21 @@ public class MainActivity extends AppCompatActivity {
 
         fragmentManager = getSupportFragmentManager();
 
+        //dbHelper = new DBHelper(this);
+        //dbHelper.create_db();
     }
 
-    public void showMovieFragmentFromHome(int idMovie) {
+    public void showMovieFragmentFromHome(Movie _movie) {
         Bundle bundle = new Bundle();
-        bundle.putInt("id", idMovie);
+        bundle.putInt("id", _movie.getFilmId());
+        bundle.putString("url", _movie.getPosterUrlPreview());
 
         navController.navigate(R.id.action_navigation_home_to_navigation_movie2, bundle);
     }
-    public void showMovieFragmentFromSearch(int idMovie) {
+    public void showMovieFragmentFromSearch(Movie _movie) {
         Bundle bundle = new Bundle();
-        bundle.putInt("id", idMovie);
+        bundle.putInt("id", _movie.getFilmId());
+        bundle.putString("url", _movie.getPosterUrlPreview());
 
         navController.navigate(R.id.action_navigation_search_to_navigation_movie, bundle);
     }

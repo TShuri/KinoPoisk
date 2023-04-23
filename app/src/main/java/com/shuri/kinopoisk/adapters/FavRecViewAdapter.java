@@ -14,11 +14,12 @@ import com.shuri.kinopoisk.R;
 import com.shuri.kinopoisk.models.Movie;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FavRecViewAdapter extends RecyclerView.Adapter<FavRecViewAdapter.ViewHolder> {
     private final LayoutInflater inflater;
-    private final List<Movie> movies;
+    private List<Movie> movies;
 
     public FavRecViewAdapter(Context context, List<Movie> movies) {
         this.movies = movies;
@@ -35,8 +36,8 @@ public class FavRecViewAdapter extends RecyclerView.Adapter<FavRecViewAdapter.Vi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Movie movie = movies.get(position);
-        holder.imageSmallCard.setImageResource(R.drawable.movie_logo);
-        //Picasso.get().load(movie.getPosterUrlPreview()).into(holder.imageSmallCard);
+        //holder.imageSmallCard.setImageResource(R.drawable.movie_logo);
+        Picasso.get().load(movie.getPosterUrlPreview()).into(holder.imageSmallCard);
         holder.nameMovie.setText(movie.getNameRu());
         holder.ratingMovie.setText(String.valueOf(movie.getRating()));
     }
@@ -55,5 +56,10 @@ public class FavRecViewAdapter extends RecyclerView.Adapter<FavRecViewAdapter.Vi
             nameMovie = view.findViewById(R.id.nameMovie);
             ratingMovie = view.findViewById(R.id.ratingMovie);
         }
+    }
+
+    public void setData(List<Movie> _movies) {
+        this.movies = new ArrayList<>(_movies);
+        notifyDataSetChanged();
     }
 }
