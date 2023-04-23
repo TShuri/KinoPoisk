@@ -34,14 +34,17 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ConcurrentModificationException;
 import java.util.Currency;
+import java.util.Queue;
 
 import javax.net.ssl.HttpsURLConnection;
 
 public class MovieFragment extends Fragment implements View.OnClickListener{
     int idMovie;
     String urlPreview;
+    Boolean watch, unwatch, rate;
 
     TextView nameMovie, slogan, description, rating, genres;
+    TextView tvUnwatch;
 
     ImageView imgMovie;
 
@@ -57,16 +60,14 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
         idMovie = getArguments().getInt("id");
         urlPreview = getArguments().getString("url");
 
-        //nameMovie = getView().findViewById(R.id.titleNameMovie);
-        //slogan = getView().findViewById(R.id.titleSloganMovie);
-        //description = getView().findViewById(R.id.titleDescriptionMovie);
-        //rating = getView().findViewById(R.id.titleRatingMovie);
-
         MovieApi movieApi = new MovieApi();
         movieApi.execute(idMovie);
 
         dbHelperMov = new DBHelper(this.getContext());
-        //database = dbHelperMov.open();
+
+        watch = checkInDB(DBHelper.TABLE_WATCHED, DBHelper.COLUMN_MOVIE_ID, String.valueOf(idMovie));
+        unwatch = checkInDB(DBHelper.TABLE_UNWATCHED, DBHelper.COLUMN_MOVIE_ID, String.valueOf(idMovie));
+        rate = checkInDB(DBHelper.TABLE_RATED, DBHelper.COLUMN_MOVIE_ID, String.valueOf(idMovie));
     }
 
     @Override
@@ -82,6 +83,8 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
         genres = view.findViewById(R.id.titleGenresMovie);
         imgMovie = view.findViewById(R.id.bigImgMovie);
 
+        tvUnwatch = view.findViewById(R.id.tvUnwatch);
+
         btnRate = (ImageButton) view.findViewById(R.id.imgBtnRate);
         btnRate.setOnClickListener(this);
 
@@ -91,7 +94,13 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
         btnUnwatch = (ImageButton) view.findViewById(R.id.imgBtnUnwatch);
         btnUnwatch.setOnClickListener(this);
 
-        //Log.d("mLog", imgMovie.)
+        if (unwatch) {
+            btnWillWatch.setImageResource(R.drawable.ic_bookmark_added_32dp);
+        }
+        if(watch) {
+            btnUnwatch.setImageResource(R.drawable.ic_check_circle_32dp);
+            tvUnwatch.setText("Просмотрено");
+        }
 
         return view;
     }
@@ -105,48 +114,79 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
 
         switch (view.getId()) {
             case R.id.imgBtnRate: {
-                database.delete(DBHelper.TABLE_UNWATCHED, DBHelper.COLUMN_MOVIE_ID + "= " + idMovie, null);
+                //database.delete(DBHelper.TABLE_UNWATCHED, DBHelper.COLUMN_MOVIE_ID + "= " + idMovie, null);
 
                 break;
             }
             case R.id.imgBtnWillwatch: {
-                contentValues.put(DBHelper.COLUMN_MOVIE_ID, (Integer) idMovie);
-                contentValues.put(DBHelper.COLUMN_MOVIE_NAME, nameMovie.getText().toString());
-                contentValues.put(DBHelper.COLUMN_MOVIE_URL, urlPreview); // Example
-                contentValues.put(DBHelper.COLUMN_MOVIE_RATING, Double.parseDouble(rating.getText().toString()));
+                if (unwatch) {
+                    unwatch = false;
 
-                database.insert(DBHelper.TABLE_UNWATCHED, null, contentValues);
+                    database.delete(DBHelper.TABLE_UNWATCHED, DBHelper.COLUMN_MOVIE_ID + "= " + idMovie, null);
+                    btnWillWatch.setImageResource(R.drawable.ic_bookmark_border_32dp);
+                    Toast toast = Toast.makeText(getContext(), "Удалено из Буду смотреть", Toast.LENGTH_SHORT);
+                    toast.show();
+                } else {
+                    unwatch = true;
 
-                Toast toast = Toast.makeText(getContext(), "Added", Toast.LENGTH_SHORT);
-                toast.show();
+                    contentValues.put(DBHelper.COLUMN_MOVIE_ID, (Integer) idMovie);
+                    contentValues.put(DBHelper.COLUMN_MOVIE_NAME, nameMovie.getText().toString());
+                    contentValues.put(DBHelper.COLUMN_MOVIE_URL, urlPreview); // Example
+                    contentValues.put(DBHelper.COLUMN_MOVIE_RATING, Double.parseDouble(rating.getText().toString()));
+
+                    database.insert(DBHelper.TABLE_UNWATCHED, null, contentValues);
+
+                    btnWillWatch.setImageResource(R.drawable.ic_bookmark_added_32dp);
+                    Toast toast = Toast.makeText(getContext(), "Добавлено в Буду смотреть", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
 
                 break;
             }
             case R.id.imgBtnUnwatch: {
+                if (watch) {
+                    watch = false;
 
-                cursor = database.query(DBHelper.TABLE_UNWATCHED, null, null, null, null, null, null);
+                    database.delete(DBHelper.TABLE_WATCHED, DBHelper.COLUMN_MOVIE_ID + "= " + idMovie, null);
 
-                if (cursor.moveToFirst()) {
-                    int idIndex = cursor.getColumnIndex(DBHelper.COLUMN_ID);
-                    int movIdIndex = cursor.getColumnIndex(DBHelper.COLUMN_MOVIE_ID);
-                    int nameIndex = cursor.getColumnIndex(DBHelper.COLUMN_MOVIE_NAME);
-                    int urlIndex = cursor.getColumnIndex(DBHelper.COLUMN_MOVIE_URL);
-                    int ratingIndex = cursor.getColumnIndex(DBHelper.COLUMN_MOVIE_RATING);
-                        do {
-                            Log.d("mLog", "ID = " + cursor.getInt(idIndex)+
-                                                    ", idMovie = " + cursor.getInt(movIdIndex)+
-                                                    ", name = " + cursor.getString(nameIndex)+
-                                                    ", url = " + cursor.getString(urlIndex)+
-                                                    ", rating = " + cursor.getDouble(ratingIndex));
-                        } while (cursor.moveToNext());
-                } else
-                    Log.d("mLog", "No movies");
+                    btnUnwatch.setImageResource(R.drawable.ic_check_circle_outline_32dp);
+                    tvUnwatch.setText("Не просмотрено");
 
-                cursor.close();
+                    Toast toast = Toast.makeText(getContext(), "Удалено из Просмотрено", Toast.LENGTH_SHORT);
+                    toast.show();
+                } else {
+                    watch = true;
+
+                    contentValues.put(DBHelper.COLUMN_MOVIE_ID, (Integer) idMovie);
+                    contentValues.put(DBHelper.COLUMN_MOVIE_NAME, nameMovie.getText().toString());
+                    contentValues.put(DBHelper.COLUMN_MOVIE_URL, urlPreview); // Example
+                    contentValues.put(DBHelper.COLUMN_MOVIE_RATING, Double.parseDouble(rating.getText().toString()));
+
+                    database.insert(DBHelper.TABLE_WATCHED, null, contentValues);
+
+                    btnUnwatch.setImageResource(R.drawable.ic_check_circle_32dp);
+                    tvUnwatch.setText("Просмотрено");
+
+                    Toast toast = Toast.makeText(getContext(), "Добавлено в Просмотрено", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+
                 break;
             }
         }
         dbHelperMov.close();
+    }
+
+    private boolean checkInDB(String tableName, String dbField, String value) {
+        database = dbHelperMov.getReadableDatabase();
+        String query = "Select * from " + tableName + " where " + dbField + " = " + value;
+        cursor = database.rawQuery(query, null);
+        if (cursor.getCount() <= 0) {
+            cursor.close();
+            return false;
+        }
+        cursor.close();
+        return true;
     }
 
     public class MovieApi extends AsyncTask<Integer, Void, ExtendedMovie> {
@@ -172,7 +212,6 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
         protected ExtendedMovie doInBackground(Integer... integers) {
             try { // HTTPS connection
                 urlMovie = urlMovie + idMovie;
-                System.out.println(urlMovie);
                 url = new URL(urlMovie);
 
                 connection = (HttpsURLConnection) url.openConnection();

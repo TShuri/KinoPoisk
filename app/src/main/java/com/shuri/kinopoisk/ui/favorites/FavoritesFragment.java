@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.shuri.kinopoisk.MainActivity;
 import com.shuri.kinopoisk.R;
 import com.shuri.kinopoisk.adapters.FavRecViewAdapter;
 import com.shuri.kinopoisk.databases.DBHelper;
@@ -29,6 +31,8 @@ public class FavoritesFragment extends Fragment {
     private FragmentFavoritesBinding binding;
 
     private List<Movie> unwatchedMovies, watchedMovies, ratedMovies;
+
+    private TextView unwatchCount, watchCount, rateCount;
 
     private RecyclerView rvUnwatch, rvWatched, rvRated;
     private FavRecViewAdapter adapterUnwatch, adapterWatched, adapterRated;
@@ -57,22 +61,25 @@ public class FavoritesFragment extends Fragment {
         binding = FragmentFavoritesBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        //movies = new ArrayList<>();
-        //initialMovies();
+        unwatchCount = root.findViewById(R.id.textCountUnwatch);
+        watchCount = root.findViewById(R.id.textCountWatch);
+        rateCount = root.findViewById(R.id.textCountRated);
 
         rvUnwatch = root.findViewById(R.id.UnwatchRecyclerView);
-        adapterUnwatch = new FavRecViewAdapter(root.getContext(), unwatchedMovies);
+        adapterUnwatch = new FavRecViewAdapter(root.getContext(), unwatchedMovies, unwatchCount, (MainActivity) getActivity());
         rvUnwatch.setAdapter(adapterUnwatch);
 
         rvWatched = root.findViewById(R.id.WatchRecyclerView);
-        adapterWatched = new FavRecViewAdapter(root.getContext(), watchedMovies);
+        adapterWatched = new FavRecViewAdapter(root.getContext(), watchedMovies, watchCount, (MainActivity) getActivity());
         rvWatched.setAdapter(adapterWatched);
 
         rvRated = root.findViewById(R.id.ratedRecyclerView);
-        adapterRated = new FavRecViewAdapter(root.getContext(), ratedMovies);
+        adapterRated = new FavRecViewAdapter(root.getContext(), ratedMovies, rateCount, (MainActivity) getActivity());
         rvRated.setAdapter(adapterRated);
 
-        initUnwatched();
+        //unwatchedMovies = initListMovies(DBHelper.TABLE_UNWATCHED);
+        adapterUnwatch.setData(initListMovies(DBHelper.TABLE_UNWATCHED));
+        adapterWatched.setData(initListMovies(DBHelper.TABLE_WATCHED));
 
         return root;
     }
@@ -83,12 +90,12 @@ public class FavoritesFragment extends Fragment {
         binding = null;
     }
 
-    private void initUnwatched() {
-        unwatchedMovies = new ArrayList<>();
+    private List<Movie> initListMovies(String tableName) {
+        List<Movie> initList = new ArrayList<>();
 
         database = dbHelper.getWritableDatabase();
 
-        cursor = database.query(DBHelper.TABLE_UNWATCHED, null, null, null, null, null, null);
+        cursor = database.query(tableName, null, null, null, null, null, null);
 
         if (cursor.moveToFirst()) {
             int idIndex = cursor.getColumnIndex(DBHelper.COLUMN_ID);
@@ -98,18 +105,19 @@ public class FavoritesFragment extends Fragment {
             int ratingIndex = cursor.getColumnIndex(DBHelper.COLUMN_MOVIE_RATING);
             do {
                 Movie mov = new Movie(); // !!! НЕПОЛНАЯ ИНИЦИАЛИЗАЦИЯ ОБЪЕКТА
+
                 mov.setFilmId(cursor.getInt(movIdIndex));
                 mov.setNameRu(cursor.getString(nameIndex));
                 mov.setPosterUrlPreview(cursor.getString(urlIndex));
                 mov.setRating(cursor.getDouble(ratingIndex));
 
-                Log.d("mLog", "ID = " + cursor.getInt(idIndex)+
-                        ", idMovie = " + cursor.getInt(movIdIndex)+
-                        ", name = " + cursor.getString(nameIndex)+
-                        ", url = " + cursor.getString(urlIndex)+
+                Log.d("mLog", "tableName = " + tableName + "ID = " + cursor.getInt(idIndex) +
+                        ", idMovie = " + cursor.getInt(movIdIndex) +
+                        ", name = " + cursor.getString(nameIndex) +
+                        ", url = " + cursor.getString(urlIndex) +
                         ", rating = " + cursor.getDouble(ratingIndex));
 
-                unwatchedMovies.add(mov);
+                initList.add(mov);
             } while (cursor.moveToNext());
         } else
             Log.d("mLog", "No movies");
@@ -118,6 +126,7 @@ public class FavoritesFragment extends Fragment {
 
         dbHelper.close();
 
-        adapterUnwatch.setData(unwatchedMovies);
+        //adapterUnwatch.setData(unwatchedMovies);
+        return initList;
     }
 }
