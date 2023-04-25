@@ -63,14 +63,6 @@ public class SeacrhRecViewAdapter extends RecyclerView.Adapter<SeacrhRecViewAdap
 
             holder.btnMore.setOnClickListener(loadMore);
 
-            /*holder.btnMore.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    SearchFragment.countPage += 1;
-
-                    Toast.makeText(context, "Button Clicked", Toast.LENGTH_LONG).show();
-                }
-            });*/
         } else {
             Movie movie = movies.get(position);
             //holder.imageMovie.setImageResource(R.drawable.movie_logo);

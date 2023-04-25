@@ -31,6 +31,8 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_MOVIE_NAME = "movieName";
     public static final String COLUMN_MOVIE_RATING = "movieRating";
     public static final String COLUMN_MOVIE_URL = "movieUrl";
+    public static final String COLUMN_MOVIE_MYRATING = "movieMyRating";
+    public static final String COLUMN_MOVIE_MYREVIEW = "movieMyReview";
 
     private Context myContext;
 

@@ -1,5 +1,7 @@
 package com.shuri.kinopoisk.ui;
 
+import android.app.ActionBar;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -17,11 +19,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.shuri.kinopoisk.MainActivity;
 import com.shuri.kinopoisk.R;
 import com.shuri.kinopoisk.databases.DBHelper;
 import com.shuri.kinopoisk.models.ExtendedMovie;
@@ -45,7 +51,7 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
     Boolean watch, unwatch, rate;
 
     TextView nameMovie, slogan, description, rating, genres;
-    TextView tvUnwatch;
+    TextView tvUnwatch, tvRate;
 
     ImageView imgMovie;
 
@@ -77,6 +83,8 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
 
         View view = inflater.inflate(R.layout.fragment_movie, container, false);
 
+
+
         nameMovie = view.findViewById(R.id.titleNameMovie);
         slogan = view.findViewById(R.id.titleSloganMovie);
         description = view.findViewById(R.id.titleDescriptionMovie);
@@ -85,6 +93,7 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
         imgMovie = view.findViewById(R.id.bigImgMovie);
 
         tvUnwatch = view.findViewById(R.id.tvUnwatch);
+        tvRate = view.findViewById(R.id.tvRate);
 
         btnRate = (ImageButton) view.findViewById(R.id.imgBtnRate);
         btnRate.setOnClickListener(this);
@@ -102,6 +111,10 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
             btnUnwatch.setImageResource(R.drawable.ic_check_circle_32dp);
             tvUnwatch.setText("Просмотрено");
         }
+        if(rate) {
+            btnRate.setImageResource(R.drawable.ic_star_32dp);
+            tvRate.setText("Оценено");
+        }
 
         return view;
     }
@@ -115,7 +128,7 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
 
         switch (view.getId()) {
             case R.id.imgBtnRate: {
-                //database.delete(DBHelper.TABLE_UNWATCHED, DBHelper.COLUMN_MOVIE_ID + "= " + idMovie, null);
+                createRatingDialog();
 
                 break;
             }
@@ -188,6 +201,94 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
         }
         cursor.close();
         return true;
+    }
+
+    private void createRatingDialog() {
+        Dialog ratingDialog = new Dialog(getContext());
+        ratingDialog.setContentView(R.layout.dialog_rating);
+
+        RatingBar ratingBar = ratingDialog.findViewById(R.id.ratingBar);
+        EditText etReview = ratingDialog.findViewById(R.id.etReview);
+
+        Button btnDelRev = ratingDialog.findViewById(R.id.btnDelRev);
+        btnDelRev.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                database = dbHelperMov.getWritableDatabase();
+
+                rate = false;
+
+                database.delete(DBHelper.TABLE_RATED, DBHelper.COLUMN_MOVIE_ID + "= " + idMovie, null);
+
+                btnRate.setImageResource(R.drawable.ic_star_border_32dp);
+                tvRate.setText("Оценить");
+
+                Toast toast = Toast.makeText(getContext(), "Удалено из Оцененные", Toast.LENGTH_SHORT);
+                toast.show();
+
+                ratingDialog.dismiss();
+                dbHelperMov.close();
+            }
+        });
+        btnDelRev.setVisibility(View.INVISIBLE);
+
+        Button btnAddRev = ratingDialog.findViewById(R.id.btnAddRev);
+        btnAddRev.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                database = dbHelperMov.getWritableDatabase();
+                ContentValues contentValues = new ContentValues();
+
+                if (rate) {
+                    contentValues.put(DBHelper.COLUMN_MOVIE_MYRATING, ratingBar.getRating());
+                    contentValues.put(DBHelper.COLUMN_MOVIE_MYREVIEW, String.valueOf(etReview.getText()));
+
+                    String idFilter = DBHelper.COLUMN_MOVIE_ID + "=" + idMovie;
+                    database.update(DBHelper.TABLE_RATED, contentValues, idFilter, null);
+
+                    Toast toast = Toast.makeText(getContext(), "Отзыв обновлен", Toast.LENGTH_SHORT);
+                    toast.show();
+                } else {
+                    rate = true;
+
+                    contentValues.put(DBHelper.COLUMN_MOVIE_ID, (Integer) idMovie);
+                    contentValues.put(DBHelper.COLUMN_MOVIE_NAME, nameMovie.getText().toString());
+                    contentValues.put(DBHelper.COLUMN_MOVIE_URL, urlPreview); // Example
+                    contentValues.put(DBHelper.COLUMN_MOVIE_RATING, Double.parseDouble(rating.getText().toString()));
+                    contentValues.put(DBHelper.COLUMN_MOVIE_MYRATING, ratingBar.getRating());
+                    contentValues.put(DBHelper.COLUMN_MOVIE_MYREVIEW, String.valueOf(etReview.getText()));
+
+                    database.insert(DBHelper.TABLE_RATED, null, contentValues);
+
+                    btnRate.setImageResource(R.drawable.ic_star_32dp);
+                    tvRate.setText("Оценено");
+
+                    Toast toast = Toast.makeText(getContext(), "Отзыв добавлен", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+                ratingDialog.dismiss();
+                dbHelperMov.close();
+            }
+        });
+
+        if (rate) {
+            String query = "Select * from " + DBHelper.TABLE_RATED + " where " + DBHelper.COLUMN_MOVIE_ID + " = " + idMovie;
+            cursor = database.rawQuery(query, null);
+            cursor.moveToNext();
+
+            int indexMyRating = cursor.getColumnIndex(DBHelper.COLUMN_MOVIE_MYRATING);
+            int indexMyReview = cursor.getColumnIndex(DBHelper.COLUMN_MOVIE_MYREVIEW);
+
+            ratingBar.setRating(cursor.getFloat(indexMyRating));
+            etReview.setText(cursor.getString(indexMyReview));
+
+            btnDelRev.setVisibility(View.VISIBLE);
+            btnAddRev.setText("Обновить отзыв");
+
+            cursor.close();
+        }
+
+        ratingDialog.show();
     }
 
     public class MovieApi extends AsyncTask<Integer, Void, ExtendedMovie> {

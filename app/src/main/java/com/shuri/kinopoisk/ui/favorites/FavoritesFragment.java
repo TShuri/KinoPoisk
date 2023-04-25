@@ -80,6 +80,7 @@ public class FavoritesFragment extends Fragment {
         //unwatchedMovies = initListMovies(DBHelper.TABLE_UNWATCHED);
         adapterUnwatch.setData(initListMovies(DBHelper.TABLE_UNWATCHED));
         adapterWatched.setData(initListMovies(DBHelper.TABLE_WATCHED));
+        adapterRated.setData(initListMovies(DBHelper.TABLE_RATED));
 
         return root;
     }
@@ -111,16 +112,9 @@ public class FavoritesFragment extends Fragment {
                 mov.setPosterUrlPreview(cursor.getString(urlIndex));
                 mov.setRating(cursor.getDouble(ratingIndex));
 
-                Log.d("mLog", "tableName = " + tableName + "ID = " + cursor.getInt(idIndex) +
-                        ", idMovie = " + cursor.getInt(movIdIndex) +
-                        ", name = " + cursor.getString(nameIndex) +
-                        ", url = " + cursor.getString(urlIndex) +
-                        ", rating = " + cursor.getDouble(ratingIndex));
-
                 initList.add(mov);
             } while (cursor.moveToNext());
-        } else
-            Log.d("mLog", "No movies");
+        }
 
         cursor.close();
 

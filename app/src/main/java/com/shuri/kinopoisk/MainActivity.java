@@ -3,9 +3,11 @@ package com.shuri.kinopoisk;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
@@ -52,6 +54,12 @@ public class MainActivity extends AppCompatActivity {
 
         //dbHelper = new DBHelper(this);
         //dbHelper.create_db();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        onBackPressed();
+        return super.onOptionsItemSelected(item);
     }
 
     public void showMovieFragmentFromHome(Movie _movie) {
