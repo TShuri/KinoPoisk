@@ -23,6 +23,7 @@
     <string name="textDescription">Описание</string>
     <string name="textRating">Рейтинг</string>
     <string name="textRelease">Последние релизы</string>
+    <string name="textBtnMore">Еще</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -21,6 +21,8 @@
             android:id="@+id/scrollLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
             android:orientation="vertical">
 
             <ImageView
@@ -28,6 +30,7 @@
                 android:layout_width="210dp"
                 android:layout_height="280dp"
                 android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"
                 app:srcCompat="@drawable/movie_logo" />
 
             <TextView
@@ -151,6 +154,7 @@
                 android:id="@+id/titleRatingMovie"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
                 android:text="@string/textRatingMovie"
                 android:textAlignment="center"
                 android:textSize="20sp" />

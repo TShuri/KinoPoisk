@@ -1,5 +1,6 @@
 package com.shuri.kinopoisk.ui.home;
 
+import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -67,14 +68,8 @@ public class HomeFragment extends Fragment{
         binding = null;
     }
 
-    private void initialMovies() {
-        movies.add(new Movie(1));
-        movies.add(new Movie(2));
-        movies.add(new Movie(3));
-        movies.add(new Movie(4));
-    }
-
     public class KinoPoisk extends AsyncTask <Void, Void, List<Movie>>{
+        private ProgressDialog loadDialog = new ProgressDialog(getActivity());
         private String apiKey = "88916739-94f0-46b3-bdac-b96201304527";
         private String urlReleases = "https://kinopoiskapiunofficial.tech/api/v2.1/films/releases?year=2023&month=MARCH&page=1";
 
@@ -91,6 +86,12 @@ public class HomeFragment extends Fragment{
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            loadDialog.show();
         }
 
         @Override
@@ -112,7 +113,7 @@ public class HomeFragment extends Fragment{
                 throw new RuntimeException(e);
             }
             finally {
-                connection.disconnect();
+                //connection.disconnect();
             }
             List<Movie> movs = JSONSimpleParser.parseForHome(bfR);
 
@@ -122,6 +123,11 @@ public class HomeFragment extends Fragment{
         @Override
         protected void onPostExecute(List<Movie> _movies) {
             movies = new ArrayList<>(_movies);
+            adapter.setData(_movies);
+
+            if (loadDialog.isShowing()) {
+                loadDialog.dismiss();
+            }
         }
     }
 }

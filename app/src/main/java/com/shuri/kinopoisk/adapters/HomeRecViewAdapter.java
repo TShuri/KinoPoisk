@@ -19,6 +19,7 @@ import com.shuri.kinopoisk.models.Movie;
 import com.shuri.kinopoisk.ui.MovieFragment;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HomeRecViewAdapter extends RecyclerView.Adapter<HomeRecViewAdapter.ViewHolder> {
@@ -65,9 +66,10 @@ public class HomeRecViewAdapter extends RecyclerView.Adapter<HomeRecViewAdapter.
         return movies.size();
     }
 
-    /*public void setData(List<Movie> searchMovies) {
-        movies = searchMovies;
-    }*/
+    public void setData(List<Movie> _movies) {
+        movies = new ArrayList<>(_movies);
+        notifyDataSetChanged();
+    }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         final LinearLayout cardLayout, textLayout;

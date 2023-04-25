@@ -1,5 +1,6 @@
 package com.shuri.kinopoisk.ui;
 
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -190,6 +191,7 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
     }
 
     public class MovieApi extends AsyncTask<Integer, Void, ExtendedMovie> {
+        private ProgressDialog loadDialog = new ProgressDialog(getActivity());
         private String apiKey = "88916739-94f0-46b3-bdac-b96201304527";
         private String urlMovie = "https://kinopoiskapiunofficial.tech/api/v2.2/films/";
 
@@ -206,6 +208,12 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            loadDialog.show();
         }
 
         @Override
@@ -245,6 +253,10 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
             description.setText(extendedMovie.getDescription());
             rating.setText(String.valueOf(extendedMovie.getRating()));
             genres.setText(extendedMovie.getStringGenres());
+
+            if (loadDialog.isShowing()) {
+                loadDialog.dismiss();
+            }
         }
     }
 }
