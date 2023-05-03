@@ -8,7 +8,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,16 +29,19 @@ import com.shuri.kinopoisk.models.Movie;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FavoritesFragment extends Fragment {
+public class FavoritesFragment extends Fragment implements View.OnClickListener {
 
     private FragmentFavoritesBinding binding;
 
     private List<Movie> unwatchedMovies, watchedMovies, ratedMovies;
 
     private TextView unwatchCount, watchCount, rateCount;
+    private ImageButton search, reset;
+    private EditText keyword;
 
     private RecyclerView rvUnwatch, rvWatched, rvRated;
     private FavRecViewAdapter adapterUnwatch, adapterWatched, adapterRated;
+
 
     DBHelper dbHelper;
     SQLiteDatabase database;
@@ -60,6 +66,13 @@ public class FavoritesFragment extends Fragment {
 
         binding = FragmentFavoritesBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+
+        search = root.findViewById(R.id.imgBtnSearch);
+        search.setOnClickListener(this);
+        reset = root.findViewById(R.id.imgBtnReset);
+        reset.setOnClickListener(this);
+
+        keyword = root.findViewById(R.id.etLocalSearch);
 
         unwatchCount = root.findViewById(R.id.textCountUnwatch);
         watchCount = root.findViewById(R.id.textCountWatch);
@@ -86,9 +99,70 @@ public class FavoritesFragment extends Fragment {
     }
 
     @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.imgBtnSearch: {
+                adapterUnwatch.setData(searchInDB(DBHelper.TABLE_UNWATCHED, String.valueOf(keyword.getText())));
+                adapterWatched.setData(searchInDB(DBHelper.TABLE_WATCHED, String.valueOf(keyword.getText())));
+                adapterRated.setData(searchInDB(DBHelper.TABLE_RATED, String.valueOf(keyword.getText())));
+
+                Toast toast = Toast.makeText(getContext(), "Найдены следующие фильмы", Toast.LENGTH_SHORT);
+                if (adapterUnwatch.getItemCount() == 0 && adapterWatched.getItemCount() == 0 && adapterRated.getItemCount() == 0)
+                    toast = Toast.makeText(getContext(), "Фильмы не найдены", Toast.LENGTH_SHORT);
+                toast.show();
+
+                break;
+            }
+            case R.id.imgBtnReset: {
+                adapterUnwatch.setData(initListMovies(DBHelper.TABLE_UNWATCHED));
+                adapterWatched.setData(initListMovies(DBHelper.TABLE_WATCHED));
+                adapterRated.setData(initListMovies(DBHelper.TABLE_RATED));
+
+                break;
+            }
+        }
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    private List<Movie> searchInDB(String tableName, String keyword) {
+        List<Movie> searchList = new ArrayList<>();
+
+        database = dbHelper.getWritableDatabase();
+
+        String query = "SELECT * FROM " + tableName + " WHERE " + DBHelper.COLUMN_MOVIE_NAME + " LIKE '%" + keyword + "%'";
+
+        cursor = database.rawQuery(query, null);
+        //cursor = database.query(tableName, null, null, null, null, null, null);
+
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(DBHelper.COLUMN_ID);
+            int movIdIndex = cursor.getColumnIndex(DBHelper.COLUMN_MOVIE_ID);
+            int nameIndex = cursor.getColumnIndex(DBHelper.COLUMN_MOVIE_NAME);
+            int urlIndex = cursor.getColumnIndex(DBHelper.COLUMN_MOVIE_URL);
+            int ratingIndex = cursor.getColumnIndex(DBHelper.COLUMN_MOVIE_RATING);
+            do {
+                Movie mov = new Movie(); // !!! НЕПОЛНАЯ ИНИЦИАЛИЗАЦИЯ ОБЪЕКТА
+
+                mov.setFilmId(cursor.getInt(movIdIndex));
+                mov.setNameRu(cursor.getString(nameIndex));
+                mov.setPosterUrlPreview(cursor.getString(urlIndex));
+                mov.setRating(cursor.getDouble(ratingIndex));
+
+                searchList.add(mov);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+
+        dbHelper.close();
+
+        //adapterUnwatch.setData(unwatchedMovies);
+        return searchList;
     }
 
     private List<Movie> initListMovies(String tableName) {

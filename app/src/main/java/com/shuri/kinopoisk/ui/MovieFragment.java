@@ -137,6 +137,7 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
                     unwatch = false;
 
                     database.delete(DBHelper.TABLE_UNWATCHED, DBHelper.COLUMN_MOVIE_ID + "= " + idMovie, null);
+
                     btnWillWatch.setImageResource(R.drawable.ic_bookmark_border_32dp);
                     Toast toast = Toast.makeText(getContext(), "Удалено из Буду смотреть", Toast.LENGTH_SHORT);
                     toast.show();
