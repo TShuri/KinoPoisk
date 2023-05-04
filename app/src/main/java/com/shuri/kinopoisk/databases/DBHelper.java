@@ -14,25 +14,26 @@ import java.io.OutputStream;
 
 public class DBHelper extends SQLiteOpenHelper {
     private static String DB_PATH; // полный путь к базе данных
-    private static String DB_NAME = "moviesDB.db";
-    private static final int DB_VERSION = 2;
+    private static String DB_NAME = "DBMovies.db";
+    private static final int DB_VERSION = 1;
 
     private SQLiteDatabase mDataBase;
     private boolean mNeedUpdate = false;
 
     // названия таблиц
-    public static final String TABLE_UNWATCHED = "unwatched";
-    public static final String TABLE_WATCHED = "watched";
-    public static final String TABLE_RATED = "rated";
+    public static final String TABLE_MOVIES = "movies";
+    public static final String TABLE_REVIEWS = "reviews";
 
     // названия столбцов
-    public static final String COLUMN_ID = "_id";
-    public static final String COLUMN_MOVIE_ID = "movieId";
-    public static final String COLUMN_MOVIE_NAME = "movieName";
-    public static final String COLUMN_MOVIE_RATING = "movieRating";
-    public static final String COLUMN_MOVIE_URL = "movieUrl";
-    public static final String COLUMN_MOVIE_MYRATING = "movieMyRating";
-    public static final String COLUMN_MOVIE_MYREVIEW = "movieMyReview";
+    public static final String COLUMN_ID = "id";
+    public static final String COLUMN_NAME = "name";
+    public static final String COLUMN_RATING = "rating";
+    public static final String COLUMN_PREVIEW = "preview";
+    public static final String COLUMN_UNWATCHED = "unwatched";
+    public static final String COLUMN_RATED = "rated";
+    public static final String COLUMN_VIEWED = "viewed";
+
+    public static final String COLUMN_REVIEW = "review";
 
     private Context myContext;
 
@@ -110,28 +111,6 @@ public class DBHelper extends SQLiteOpenHelper {
         super.close();
     }
 
-    public void create_db(){
-
-        File file = new File(DB_PATH);
-        if (!file.exists()) {
-            //получаем локальную бд как поток
-            try(InputStream myInput = myContext.getAssets().open(DB_NAME);
-                // Открываем пустую бд
-                OutputStream myOutput = new FileOutputStream(DB_PATH)) {
-
-                // побайтово копируем данные
-                byte[] buffer = new byte[1024];
-                int length;
-                while ((length = myInput.read(buffer)) > 0) {
-                    myOutput.write(buffer, 0, length);
-                }
-                myOutput.flush();
-            }
-            catch(IOException ex){
-                Log.d("DBHelper", ex.getMessage());
-            }
-        }
-    }
     public SQLiteDatabase open()throws SQLException {
 
         return SQLiteDatabase.openDatabase(DB_PATH, null, SQLiteDatabase.OPEN_READWRITE);

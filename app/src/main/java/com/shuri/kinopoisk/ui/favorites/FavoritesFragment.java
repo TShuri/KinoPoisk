@@ -33,14 +33,14 @@ public class FavoritesFragment extends Fragment implements View.OnClickListener 
 
     private FragmentFavoritesBinding binding;
 
-    private List<Movie> unwatchedMovies, watchedMovies, ratedMovies;
+    private List<Movie> unwatchedMovies, viewedMovies, ratedMovies;
 
-    private TextView unwatchCount, watchCount, rateCount;
+    private TextView unwatchedCount, viewedCount, ratedCount;
     private ImageButton search, reset;
     private EditText keyword;
 
-    private RecyclerView rvUnwatch, rvWatched, rvRated;
-    private FavRecViewAdapter adapterUnwatch, adapterWatched, adapterRated;
+    private RecyclerView rvUnwatched, rvViewed, rvRated;
+    private FavRecViewAdapter adapterUnwatched, adapterViewed, adapterRated;
 
 
     DBHelper dbHelper;
@@ -52,11 +52,10 @@ public class FavoritesFragment extends Fragment implements View.OnClickListener 
         super.onCreate(savedInstanceState);
 
         unwatchedMovies = new ArrayList<>();
-        watchedMovies = new ArrayList<>();
+        viewedMovies = new ArrayList<>();
         ratedMovies = new ArrayList<>();
 
         dbHelper = new DBHelper(getContext());
-        //dbHelper.create_db();
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -74,26 +73,26 @@ public class FavoritesFragment extends Fragment implements View.OnClickListener 
 
         keyword = root.findViewById(R.id.etLocalSearch);
 
-        unwatchCount = root.findViewById(R.id.textCountUnwatch);
-        watchCount = root.findViewById(R.id.textCountWatch);
-        rateCount = root.findViewById(R.id.textCountRated);
+        unwatchedCount = root.findViewById(R.id.textCountUnwatch);
+        viewedCount = root.findViewById(R.id.textCountWatch);
+        ratedCount = root.findViewById(R.id.textCountRated);
 
-        rvUnwatch = root.findViewById(R.id.UnwatchRecyclerView);
-        adapterUnwatch = new FavRecViewAdapter(root.getContext(), unwatchedMovies, unwatchCount, (MainActivity) getActivity());
-        rvUnwatch.setAdapter(adapterUnwatch);
+        rvUnwatched = root.findViewById(R.id.UnwatchRecyclerView);
+        adapterUnwatched = new FavRecViewAdapter(root.getContext(), unwatchedMovies, unwatchedCount, (MainActivity) getActivity());
+        rvUnwatched.setAdapter(adapterUnwatched);
 
-        rvWatched = root.findViewById(R.id.WatchRecyclerView);
-        adapterWatched = new FavRecViewAdapter(root.getContext(), watchedMovies, watchCount, (MainActivity) getActivity());
-        rvWatched.setAdapter(adapterWatched);
+        rvViewed = root.findViewById(R.id.WatchRecyclerView);
+        adapterViewed = new FavRecViewAdapter(root.getContext(), viewedMovies, viewedCount, (MainActivity) getActivity());
+        rvViewed.setAdapter(adapterViewed);
 
         rvRated = root.findViewById(R.id.ratedRecyclerView);
-        adapterRated = new FavRecViewAdapter(root.getContext(), ratedMovies, rateCount, (MainActivity) getActivity());
+        adapterRated = new FavRecViewAdapter(root.getContext(), ratedMovies, ratedCount, (MainActivity) getActivity());
         rvRated.setAdapter(adapterRated);
 
-        //unwatchedMovies = initListMovies(DBHelper.TABLE_UNWATCHED);
-        adapterUnwatch.setData(initListMovies(DBHelper.TABLE_UNWATCHED));
-        adapterWatched.setData(initListMovies(DBHelper.TABLE_WATCHED));
-        adapterRated.setData(initListMovies(DBHelper.TABLE_RATED));
+        initListMovies(false);
+        adapterUnwatched.setData(unwatchedMovies);
+        adapterViewed.setData(viewedMovies);
+        adapterRated.setData(ratedMovies);
 
         return root;
     }
@@ -102,21 +101,23 @@ public class FavoritesFragment extends Fragment implements View.OnClickListener 
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.imgBtnSearch: {
-                adapterUnwatch.setData(searchInDB(DBHelper.TABLE_UNWATCHED, String.valueOf(keyword.getText())));
-                adapterWatched.setData(searchInDB(DBHelper.TABLE_WATCHED, String.valueOf(keyword.getText())));
-                adapterRated.setData(searchInDB(DBHelper.TABLE_RATED, String.valueOf(keyword.getText())));
+                initListMovies(true);
+                adapterUnwatched.setData(unwatchedMovies);
+                adapterViewed.setData(viewedMovies);
+                adapterRated.setData(ratedMovies);
 
                 Toast toast = Toast.makeText(getContext(), "Найдены следующие фильмы", Toast.LENGTH_SHORT);
-                if (adapterUnwatch.getItemCount() == 0 && adapterWatched.getItemCount() == 0 && adapterRated.getItemCount() == 0)
+                if (adapterUnwatched.getItemCount() == 0 && adapterViewed.getItemCount() == 0 && adapterRated.getItemCount() == 0)
                     toast = Toast.makeText(getContext(), "Фильмы не найдены", Toast.LENGTH_SHORT);
                 toast.show();
 
                 break;
             }
             case R.id.imgBtnReset: {
-                adapterUnwatch.setData(initListMovies(DBHelper.TABLE_UNWATCHED));
-                adapterWatched.setData(initListMovies(DBHelper.TABLE_WATCHED));
-                adapterRated.setData(initListMovies(DBHelper.TABLE_RATED));
+                initListMovies(false);
+                adapterUnwatched.setData(unwatchedMovies);
+                adapterViewed.setData(viewedMovies);
+                adapterRated.setData(ratedMovies);
 
                 break;
             }
@@ -129,31 +130,55 @@ public class FavoritesFragment extends Fragment implements View.OnClickListener 
         binding = null;
     }
 
-    private List<Movie> searchInDB(String tableName, String keyword) {
-        List<Movie> searchList = new ArrayList<>();
+    private void initListMovies(Boolean search) {
+        List<Movie> unwatchedList = new ArrayList<>();
+        List<Movie> viewedList = new ArrayList<>();
+        List<Movie> ratedList = new ArrayList<>();
+
 
         database = dbHelper.getWritableDatabase();
 
-        String query = "SELECT * FROM " + tableName + " WHERE " + DBHelper.COLUMN_MOVIE_NAME + " LIKE '%" + keyword + "%'";
-
-        cursor = database.rawQuery(query, null);
-        //cursor = database.query(tableName, null, null, null, null, null, null);
+        if (search) {
+            String searchKeyWord = String.valueOf(keyword.getText());
+            String query = "SELECT * FROM " + DBHelper.TABLE_MOVIES + " WHERE " + DBHelper.COLUMN_NAME + " LIKE '%" + searchKeyWord + "%'";
+            cursor = database.rawQuery(query, null);
+        } else {
+            cursor = database.query(DBHelper.TABLE_MOVIES, null, null, null, null, null, null);
+        }
 
         if (cursor.moveToFirst()) {
             int idIndex = cursor.getColumnIndex(DBHelper.COLUMN_ID);
-            int movIdIndex = cursor.getColumnIndex(DBHelper.COLUMN_MOVIE_ID);
-            int nameIndex = cursor.getColumnIndex(DBHelper.COLUMN_MOVIE_NAME);
-            int urlIndex = cursor.getColumnIndex(DBHelper.COLUMN_MOVIE_URL);
-            int ratingIndex = cursor.getColumnIndex(DBHelper.COLUMN_MOVIE_RATING);
+            int nameIndex = cursor.getColumnIndex(DBHelper.COLUMN_NAME);
+            int ratingIndex = cursor.getColumnIndex(DBHelper.COLUMN_RATING);
+            int previewIndex = cursor.getColumnIndex(DBHelper.COLUMN_PREVIEW);
+            int unwatchedIndex = cursor.getColumnIndex(DBHelper.COLUMN_UNWATCHED);
+            int ratedIndex = cursor.getColumnIndex(DBHelper.COLUMN_RATED);
+            int viewedIndex = cursor.getColumnIndex(DBHelper.COLUMN_VIEWED);
+            int checkUnw = 0; // буду смотреть
+            int checkRat = 0; // оцененный
+            int checkView = 0; // просмотренный
             do {
                 Movie mov = new Movie(); // !!! НЕПОЛНАЯ ИНИЦИАЛИЗАЦИЯ ОБЪЕКТА
 
-                mov.setFilmId(cursor.getInt(movIdIndex));
+                mov.setFilmId(cursor.getInt(idIndex));
                 mov.setNameRu(cursor.getString(nameIndex));
-                mov.setPosterUrlPreview(cursor.getString(urlIndex));
+                mov.setPosterUrlPreview(cursor.getString(previewIndex));
                 mov.setRating(cursor.getDouble(ratingIndex));
 
-                searchList.add(mov);
+                checkUnw = cursor.getInt(unwatchedIndex);
+                checkRat = cursor.getInt(ratedIndex);
+                checkView = cursor.getInt(viewedIndex);
+
+                if (checkUnw == 1) {
+                    unwatchedList.add(mov);
+                }
+                if (checkView == 1){
+                    viewedList.add(mov);
+                }
+                if (checkRat == 1){
+                    ratedList.add(mov);
+                }
+
             } while (cursor.moveToNext());
         }
 
@@ -161,40 +186,8 @@ public class FavoritesFragment extends Fragment implements View.OnClickListener 
 
         dbHelper.close();
 
-        //adapterUnwatch.setData(unwatchedMovies);
-        return searchList;
-    }
-
-    private List<Movie> initListMovies(String tableName) {
-        List<Movie> initList = new ArrayList<>();
-
-        database = dbHelper.getWritableDatabase();
-
-        cursor = database.query(tableName, null, null, null, null, null, null);
-
-        if (cursor.moveToFirst()) {
-            int idIndex = cursor.getColumnIndex(DBHelper.COLUMN_ID);
-            int movIdIndex = cursor.getColumnIndex(DBHelper.COLUMN_MOVIE_ID);
-            int nameIndex = cursor.getColumnIndex(DBHelper.COLUMN_MOVIE_NAME);
-            int urlIndex = cursor.getColumnIndex(DBHelper.COLUMN_MOVIE_URL);
-            int ratingIndex = cursor.getColumnIndex(DBHelper.COLUMN_MOVIE_RATING);
-            do {
-                Movie mov = new Movie(); // !!! НЕПОЛНАЯ ИНИЦИАЛИЗАЦИЯ ОБЪЕКТА
-
-                mov.setFilmId(cursor.getInt(movIdIndex));
-                mov.setNameRu(cursor.getString(nameIndex));
-                mov.setPosterUrlPreview(cursor.getString(urlIndex));
-                mov.setRating(cursor.getDouble(ratingIndex));
-
-                initList.add(mov);
-            } while (cursor.moveToNext());
-        }
-
-        cursor.close();
-
-        dbHelper.close();
-
-        //adapterUnwatch.setData(unwatchedMovies);
-        return initList;
+        unwatchedMovies = new ArrayList<>(unwatchedList);
+        viewedMovies = new ArrayList<>(viewedList);
+        ratedMovies = new ArrayList<>(ratedList);
     }
 }

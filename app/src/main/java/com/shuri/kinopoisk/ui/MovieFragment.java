@@ -31,6 +31,7 @@ import com.shuri.kinopoisk.MainActivity;
 import com.shuri.kinopoisk.R;
 import com.shuri.kinopoisk.databases.DBHelper;
 import com.shuri.kinopoisk.models.ExtendedMovie;
+import com.shuri.kinopoisk.models.Movie;
 import com.shuri.kinopoisk.parsers.JSONSimpleParser;
 import com.squareup.picasso.Picasso;
 
@@ -48,16 +49,16 @@ import javax.net.ssl.HttpsURLConnection;
 public class MovieFragment extends Fragment implements View.OnClickListener{
     int idMovie;
     String urlPreview;
-    Boolean watch, unwatch, rate;
+    Boolean viewed, unwatched, rated;
 
     TextView nameMovie, slogan, description, rating, genres;
-    TextView tvUnwatch, tvRate;
+    TextView tvUnwatched, tvRated;
 
     ImageView imgMovie;
 
     ImageButton btnRate, btnWillWatch, btnUnwatch;
 
-    DBHelper dbHelperMov;
+    DBHelper dbHelper;
     SQLiteDatabase database;
     Cursor cursor;
     @Override
@@ -70,11 +71,9 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
         MovieApi movieApi = new MovieApi();
         movieApi.execute(idMovie);
 
-        dbHelperMov = new DBHelper(this.getContext());
+        dbHelper = new DBHelper(this.getContext());
 
-        watch = checkInDB(DBHelper.TABLE_WATCHED, DBHelper.COLUMN_MOVIE_ID, String.valueOf(idMovie));
-        unwatch = checkInDB(DBHelper.TABLE_UNWATCHED, DBHelper.COLUMN_MOVIE_ID, String.valueOf(idMovie));
-        rate = checkInDB(DBHelper.TABLE_RATED, DBHelper.COLUMN_MOVIE_ID, String.valueOf(idMovie));
+        checkInDB();
     }
 
     @Override
@@ -83,8 +82,6 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
 
         View view = inflater.inflate(R.layout.fragment_movie, container, false);
 
-
-
         nameMovie = view.findViewById(R.id.titleNameMovie);
         slogan = view.findViewById(R.id.titleSloganMovie);
         description = view.findViewById(R.id.titleDescriptionMovie);
@@ -92,8 +89,8 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
         genres = view.findViewById(R.id.titleGenresMovie);
         imgMovie = view.findViewById(R.id.bigImgMovie);
 
-        tvUnwatch = view.findViewById(R.id.tvUnwatch);
-        tvRate = view.findViewById(R.id.tvRate);
+        tvUnwatched = view.findViewById(R.id.tvUnwatch);
+        tvRated = view.findViewById(R.id.tvRate);
 
         btnRate = (ImageButton) view.findViewById(R.id.imgBtnRate);
         btnRate.setOnClickListener(this);
@@ -104,16 +101,16 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
         btnUnwatch = (ImageButton) view.findViewById(R.id.imgBtnUnwatch);
         btnUnwatch.setOnClickListener(this);
 
-        if (unwatch) {
+        if (unwatched) {
             btnWillWatch.setImageResource(R.drawable.ic_bookmark_added_32dp);
         }
-        if(watch) {
+        if(viewed) {
             btnUnwatch.setImageResource(R.drawable.ic_check_circle_32dp);
-            tvUnwatch.setText("Просмотрено");
+            tvUnwatched.setText("Просмотрено");
         }
-        if(rate) {
+        if(rated) {
             btnRate.setImageResource(R.drawable.ic_star_32dp);
-            tvRate.setText("Оценено");
+            tvRated.setText("Оценено");
         }
 
         return view;
@@ -122,7 +119,7 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
     @Override
     public void onClick(View view) {
 
-        database = dbHelperMov.getWritableDatabase();
+        database = dbHelper.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
 
@@ -133,75 +130,162 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
                 break;
             }
             case R.id.imgBtnWillwatch: {
-                if (unwatch) {
-                    unwatch = false;
+                if (unwatched) {
+                    unwatched = false;
 
-                    database.delete(DBHelper.TABLE_UNWATCHED, DBHelper.COLUMN_MOVIE_ID + "= " + idMovie, null);
+                    if (rated) {
+                        contentValues.put(DBHelper.COLUMN_ID, (Integer) idMovie);
+                        contentValues.put(DBHelper.COLUMN_NAME, nameMovie.getText().toString());
+                        contentValues.put(DBHelper.COLUMN_PREVIEW, urlPreview); // Example
+                        contentValues.put(DBHelper.COLUMN_RATING, Double.parseDouble(rating.getText().toString()));
+                        contentValues.put(DBHelper.COLUMN_UNWATCHED, 0);
+                        contentValues.put(DBHelper.COLUMN_VIEWED, 0);
+                        contentValues.put(DBHelper.COLUMN_RATED, 1);
+
+                        String idFilter = DBHelper.COLUMN_ID + "=" + idMovie;
+                        database.update(DBHelper.TABLE_MOVIES, contentValues, idFilter, null);
+                    } else {
+                        database.delete(DBHelper.TABLE_MOVIES, DBHelper.COLUMN_ID + "= " + idMovie, null);
+                    }
 
                     btnWillWatch.setImageResource(R.drawable.ic_bookmark_border_32dp);
                     Toast toast = Toast.makeText(getContext(), "Удалено из Буду смотреть", Toast.LENGTH_SHORT);
                     toast.show();
                 } else {
-                    unwatch = true;
+                    unwatched = true;
 
-                    contentValues.put(DBHelper.COLUMN_MOVIE_ID, (Integer) idMovie);
-                    contentValues.put(DBHelper.COLUMN_MOVIE_NAME, nameMovie.getText().toString());
-                    contentValues.put(DBHelper.COLUMN_MOVIE_URL, urlPreview); // Example
-                    contentValues.put(DBHelper.COLUMN_MOVIE_RATING, Double.parseDouble(rating.getText().toString()));
+                    contentValues.put(DBHelper.COLUMN_ID, (Integer) idMovie);
+                    contentValues.put(DBHelper.COLUMN_NAME, nameMovie.getText().toString());
+                    contentValues.put(DBHelper.COLUMN_PREVIEW, urlPreview); // Example
+                    contentValues.put(DBHelper.COLUMN_RATING, Double.parseDouble(rating.getText().toString()));
+                    contentValues.put(DBHelper.COLUMN_UNWATCHED, 1);
+                    contentValues.put(DBHelper.COLUMN_VIEWED, 0);
+                    if (rated) {
+                        contentValues.put(DBHelper.COLUMN_RATED, 1);
+                    } else {
+                        contentValues.put(DBHelper.COLUMN_RATED, 0);
+                    }
 
-                    database.insert(DBHelper.TABLE_UNWATCHED, null, contentValues);
+                    if (viewed) {
+                        btnUnwatch.setImageResource(R.drawable.ic_check_circle_outline_32dp);
+                        tvUnwatched.setText("Не просмотрено");
+                    }
+
+                    if (rated || viewed) {
+                        String idFilter = DBHelper.COLUMN_ID + "=" + idMovie;
+                        database.update(DBHelper.TABLE_MOVIES, contentValues, idFilter, null);
+                    } else {
+                        database.insert(DBHelper.TABLE_MOVIES, null, contentValues);
+                    }
 
                     btnWillWatch.setImageResource(R.drawable.ic_bookmark_added_32dp);
+
                     Toast toast = Toast.makeText(getContext(), "Добавлено в Буду смотреть", Toast.LENGTH_SHORT);
                     toast.show();
                 }
-
+                cursor.close();
                 break;
             }
             case R.id.imgBtnUnwatch: {
-                if (watch) {
-                    watch = false;
+                if (viewed) {
+                    viewed = false;
 
-                    database.delete(DBHelper.TABLE_WATCHED, DBHelper.COLUMN_MOVIE_ID + "= " + idMovie, null);
+                    if (rated) {
+                        contentValues.put(DBHelper.COLUMN_ID, (Integer) idMovie);
+                        contentValues.put(DBHelper.COLUMN_NAME, nameMovie.getText().toString());
+                        contentValues.put(DBHelper.COLUMN_PREVIEW, urlPreview); // Example
+                        contentValues.put(DBHelper.COLUMN_RATING, Double.parseDouble(rating.getText().toString()));
+                        contentValues.put(DBHelper.COLUMN_UNWATCHED, 0);
+                        contentValues.put(DBHelper.COLUMN_VIEWED, 0);
+                        contentValues.put(DBHelper.COLUMN_RATED, 1);
+
+                        String idFilter = DBHelper.COLUMN_ID + "=" + idMovie;
+                        database.update(DBHelper.TABLE_MOVIES, contentValues, idFilter, null);
+                    } else {
+                        database.delete(DBHelper.TABLE_MOVIES, DBHelper.COLUMN_ID + "= " + idMovie, null);
+                    }
 
                     btnUnwatch.setImageResource(R.drawable.ic_check_circle_outline_32dp);
-                    tvUnwatch.setText("Не просмотрено");
+                    tvUnwatched.setText("Не просмотрено");
 
                     Toast toast = Toast.makeText(getContext(), "Удалено из Просмотрено", Toast.LENGTH_SHORT);
                     toast.show();
                 } else {
-                    watch = true;
+                    viewed = true;
 
-                    contentValues.put(DBHelper.COLUMN_MOVIE_ID, (Integer) idMovie);
-                    contentValues.put(DBHelper.COLUMN_MOVIE_NAME, nameMovie.getText().toString());
-                    contentValues.put(DBHelper.COLUMN_MOVIE_URL, urlPreview); // Example
-                    contentValues.put(DBHelper.COLUMN_MOVIE_RATING, Double.parseDouble(rating.getText().toString()));
+                    contentValues.put(DBHelper.COLUMN_ID, (Integer) idMovie);
+                    contentValues.put(DBHelper.COLUMN_NAME, nameMovie.getText().toString());
+                    contentValues.put(DBHelper.COLUMN_PREVIEW, urlPreview); // Example
+                    contentValues.put(DBHelper.COLUMN_RATING, Double.parseDouble(rating.getText().toString()));
+                    contentValues.put(DBHelper.COLUMN_UNWATCHED, 0);
+                    contentValues.put(DBHelper.COLUMN_VIEWED, 1);
+                    if (rated) {
+                        contentValues.put(DBHelper.COLUMN_RATED, 1);
+                    } else {
+                        contentValues.put(DBHelper.COLUMN_RATED, 0);
+                    }
 
-                    database.insert(DBHelper.TABLE_WATCHED, null, contentValues);
+                    if (unwatched) {
+                        btnWillWatch.setImageResource(R.drawable.ic_bookmark_border_32dp);
+                    }
+
+                    if (rated || unwatched) {
+                        String idFilter = DBHelper.COLUMN_ID + "=" + idMovie;
+                        database.update(DBHelper.TABLE_MOVIES, contentValues, idFilter, null);
+                    } else {
+                        database.insert(DBHelper.TABLE_MOVIES, null, contentValues);
+                    }
 
                     btnUnwatch.setImageResource(R.drawable.ic_check_circle_32dp);
-                    tvUnwatch.setText("Просмотрено");
+                    tvUnwatched.setText("Просмотрено");
 
                     Toast toast = Toast.makeText(getContext(), "Добавлено в Просмотрено", Toast.LENGTH_SHORT);
                     toast.show();
                 }
-
+                cursor.close();
                 break;
             }
         }
-        dbHelperMov.close();
+        dbHelper.close();
     }
 
-    private boolean checkInDB(String tableName, String dbField, String value) {
-        database = dbHelperMov.getReadableDatabase();
-        String query = "Select * from " + tableName + " where " + dbField + " = " + value;
+    private void checkInDB() {
+        database = dbHelper.getReadableDatabase();
+        String query = "Select * from " + DBHelper.TABLE_MOVIES + " where " + DBHelper.COLUMN_ID + " = " + idMovie;
         cursor = database.rawQuery(query, null);
+
         if (cursor.getCount() <= 0) {
-            cursor.close();
-            return false;
+            unwatched = false;
+            viewed = false;
+            rated = false;
+            return;
         }
-        cursor.close();
-        return true;
+
+        cursor.moveToFirst();
+
+        int unwatchedIndex = cursor.getColumnIndex(DBHelper.COLUMN_UNWATCHED);
+        int ratedIndex = cursor.getColumnIndex(DBHelper.COLUMN_RATED);
+        int viewedIndex = cursor.getColumnIndex(DBHelper.COLUMN_VIEWED);
+
+        int checkUnw = cursor.getInt(unwatchedIndex); // буду смотреть
+        int checkRat = cursor.getInt(ratedIndex); // оцененный
+        int checkView = cursor.getInt(viewedIndex); // просмотренный
+
+        if (checkUnw == 1) {
+            unwatched = true;
+        } else {
+            unwatched = false;
+        }
+        if (checkView == 1){
+            viewed = true;
+        } else {
+            viewed = false;
+        }
+        if (checkRat == 1){
+            rated = true;
+        } else {
+            rated = false;
+        }
     }
 
     private void createRatingDialog() {
@@ -215,20 +299,45 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
         btnDelRev.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                database = dbHelperMov.getWritableDatabase();
+                database = dbHelper.getWritableDatabase();
 
-                rate = false;
+                rated = false;
 
-                database.delete(DBHelper.TABLE_RATED, DBHelper.COLUMN_MOVIE_ID + "= " + idMovie, null);
+                database.delete(DBHelper.TABLE_REVIEWS, DBHelper.COLUMN_ID + "= " + idMovie, null);
+
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(DBHelper.COLUMN_ID, (Integer) idMovie);
+                contentValues.put(DBHelper.COLUMN_NAME, nameMovie.getText().toString());
+                contentValues.put(DBHelper.COLUMN_PREVIEW, urlPreview); // Example
+                contentValues.put(DBHelper.COLUMN_RATING, Double.parseDouble(rating.getText().toString()));
+                contentValues.put(DBHelper.COLUMN_RATED, 0);
+                if (unwatched) {
+                    contentValues.put(DBHelper.COLUMN_UNWATCHED, 1);
+                } else {
+                    contentValues.put(DBHelper.COLUMN_UNWATCHED, 0);
+                }
+
+                if (viewed) {
+                    contentValues.put(DBHelper.COLUMN_VIEWED, 1);
+                } else {
+                    contentValues.put(DBHelper.COLUMN_VIEWED, 0);
+                }
+
+                if (viewed || unwatched) {
+                    String idFilter = DBHelper.COLUMN_ID + "=" + idMovie;
+                    database.update(DBHelper.TABLE_MOVIES, contentValues, idFilter, null);
+                } else {
+                    database.delete(DBHelper.TABLE_MOVIES, DBHelper.COLUMN_ID + "= " + idMovie, null);
+                }
 
                 btnRate.setImageResource(R.drawable.ic_star_border_32dp);
-                tvRate.setText("Оценить");
+                tvRated.setText("Оценить");
 
                 Toast toast = Toast.makeText(getContext(), "Удалено из Оцененные", Toast.LENGTH_SHORT);
                 toast.show();
 
                 ratingDialog.dismiss();
-                dbHelperMov.close();
+                dbHelper.close();
             }
         });
         btnDelRev.setVisibility(View.INVISIBLE);
@@ -237,48 +346,71 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
         btnAddRev.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                database = dbHelperMov.getWritableDatabase();
+                database = dbHelper.getWritableDatabase();
                 ContentValues contentValues = new ContentValues();
 
-                if (rate) {
-                    contentValues.put(DBHelper.COLUMN_MOVIE_MYRATING, ratingBar.getRating());
-                    contentValues.put(DBHelper.COLUMN_MOVIE_MYREVIEW, String.valueOf(etReview.getText()));
+                if (rated) {
+                    contentValues.put(DBHelper.COLUMN_RATING, ratingBar.getRating());
+                    contentValues.put(DBHelper.COLUMN_REVIEW, String.valueOf(etReview.getText()));
 
-                    String idFilter = DBHelper.COLUMN_MOVIE_ID + "=" + idMovie;
-                    database.update(DBHelper.TABLE_RATED, contentValues, idFilter, null);
+                    String idFilter = DBHelper.COLUMN_ID + "=" + idMovie;
+                    database.update(DBHelper.TABLE_REVIEWS, contentValues, idFilter, null);
 
                     Toast toast = Toast.makeText(getContext(), "Отзыв обновлен", Toast.LENGTH_SHORT);
                     toast.show();
                 } else {
-                    rate = true;
+                    rated = true;
 
-                    contentValues.put(DBHelper.COLUMN_MOVIE_ID, (Integer) idMovie);
-                    contentValues.put(DBHelper.COLUMN_MOVIE_NAME, nameMovie.getText().toString());
-                    contentValues.put(DBHelper.COLUMN_MOVIE_URL, urlPreview); // Example
-                    contentValues.put(DBHelper.COLUMN_MOVIE_RATING, Double.parseDouble(rating.getText().toString()));
-                    contentValues.put(DBHelper.COLUMN_MOVIE_MYRATING, ratingBar.getRating());
-                    contentValues.put(DBHelper.COLUMN_MOVIE_MYREVIEW, String.valueOf(etReview.getText()));
+                    contentValues.put(DBHelper.COLUMN_ID, (Integer) idMovie);
+                    contentValues.put(DBHelper.COLUMN_RATING, ratingBar.getRating());
+                    contentValues.put(DBHelper.COLUMN_REVIEW, String.valueOf(etReview.getText()));
 
-                    database.insert(DBHelper.TABLE_RATED, null, contentValues);
+                    database.insert(DBHelper.TABLE_REVIEWS, null, contentValues);
+
+                    contentValues = new ContentValues();
+                    contentValues.put(DBHelper.COLUMN_ID, (Integer) idMovie);
+                    contentValues.put(DBHelper.COLUMN_NAME, nameMovie.getText().toString());
+                    contentValues.put(DBHelper.COLUMN_PREVIEW, urlPreview); // Example
+                    contentValues.put(DBHelper.COLUMN_RATING, Double.parseDouble(rating.getText().toString()));
+                    contentValues.put(DBHelper.COLUMN_RATED, 1);
+                    if (unwatched) {
+                        contentValues.put(DBHelper.COLUMN_UNWATCHED, 1);
+                    } else {
+                        contentValues.put(DBHelper.COLUMN_UNWATCHED, 0);
+                    }
+
+                    if (viewed) {
+                        contentValues.put(DBHelper.COLUMN_VIEWED, 1);
+                    } else {
+                        contentValues.put(DBHelper.COLUMN_VIEWED, 0);
+                    }
+
+                    if (viewed || unwatched) {
+                        String idFilter = DBHelper.COLUMN_ID + "=" + idMovie;
+                        database.update(DBHelper.TABLE_MOVIES, contentValues, idFilter, null);
+                    } else {
+                        database.insert(DBHelper.TABLE_MOVIES, null, contentValues);
+                    }
+
 
                     btnRate.setImageResource(R.drawable.ic_star_32dp);
-                    tvRate.setText("Оценено");
+                    tvRated.setText("Оценено");
 
                     Toast toast = Toast.makeText(getContext(), "Отзыв добавлен", Toast.LENGTH_SHORT);
                     toast.show();
                 }
                 ratingDialog.dismiss();
-                dbHelperMov.close();
+                dbHelper.close();
             }
         });
 
-        if (rate) {
-            String query = "Select * from " + DBHelper.TABLE_RATED + " where " + DBHelper.COLUMN_MOVIE_ID + " = " + idMovie;
+        if (rated) {
+            String query = "Select * from " + DBHelper.TABLE_REVIEWS + " where " + DBHelper.COLUMN_ID + " = " + idMovie;
             cursor = database.rawQuery(query, null);
             cursor.moveToNext();
 
-            int indexMyRating = cursor.getColumnIndex(DBHelper.COLUMN_MOVIE_MYRATING);
-            int indexMyReview = cursor.getColumnIndex(DBHelper.COLUMN_MOVIE_MYREVIEW);
+            int indexMyRating = cursor.getColumnIndex(DBHelper.COLUMN_RATING);
+            int indexMyReview = cursor.getColumnIndex(DBHelper.COLUMN_REVIEW);
 
             ratingBar.setRating(cursor.getFloat(indexMyRating));
             etReview.setText(cursor.getString(indexMyReview));
