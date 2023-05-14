@@ -11,16 +11,6 @@ public class Movie {
     private double rating; // рейтинг
     private List<String> genres; // жанры
 
-    public Movie(int i) {
-        this.filmId = i;
-        this.nameRu = "Фильм" + i;
-        this.year = 2023;
-        this.posterUrlPreview = "URL";
-        this.rating = 8;
-        genres = new ArrayList<>();
-        genres.add("Фантастика");
-    }
-
     public Movie(int _filmId, String _nameRu, int _year, String _posterUrlPreview, double _rating, List<String> _genres) {
         this.filmId = _filmId;
         this.nameRu = _nameRu;

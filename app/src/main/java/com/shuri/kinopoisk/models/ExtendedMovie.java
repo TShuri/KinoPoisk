@@ -5,11 +5,6 @@ public class ExtendedMovie extends Movie{
 String slogan;
 String description;
 
-
-    public ExtendedMovie(int i) {
-        super(i);
-    }
-
     public ExtendedMovie() {
         super();
     }

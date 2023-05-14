@@ -26,12 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
 
-    FragmentManager fragmentManager;
-
     NavController navController;
-
-    DBHelper dbHelper;
-    SQLiteDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,11 +44,6 @@ public class MainActivity extends AppCompatActivity {
         navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
-
-        fragmentManager = getSupportFragmentManager();
-
-        //dbHelper = new DBHelper(this);
-        //dbHelper.create_db();
     }
 
     @Override

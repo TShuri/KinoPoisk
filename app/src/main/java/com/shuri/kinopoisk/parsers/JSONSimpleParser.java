@@ -30,16 +30,10 @@ public class JSONSimpleParser {
             jsonStr = new String(bufferData, "UTF-8");
         } catch (
                 IOException e) {
-            //System.out.println(e.getMessage());
         }
 
         //System.out.println(json);
         return jsonStr;
-    }
-
-    public static List<Movie> parseBufferToJson(BufferedReader buffer) {
-
-        return null;
     }
 
     public static List<Movie> parseForHome(BufferedReader buffer) {

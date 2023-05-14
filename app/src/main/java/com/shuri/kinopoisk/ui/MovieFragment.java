@@ -123,6 +123,11 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
 
         ContentValues contentValues = new ContentValues();
 
+        contentValues.put(DBHelper.COLUMN_ID, (Integer) idMovie);
+        contentValues.put(DBHelper.COLUMN_NAME, nameMovie.getText().toString());
+        contentValues.put(DBHelper.COLUMN_PREVIEW, urlPreview); // Example
+        contentValues.put(DBHelper.COLUMN_RATING, Double.parseDouble(rating.getText().toString()));
+
         switch (view.getId()) {
             case R.id.imgBtnRate: {
                 createRatingDialog();
@@ -134,10 +139,6 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
                     unwatched = false;
 
                     if (rated) {
-                        contentValues.put(DBHelper.COLUMN_ID, (Integer) idMovie);
-                        contentValues.put(DBHelper.COLUMN_NAME, nameMovie.getText().toString());
-                        contentValues.put(DBHelper.COLUMN_PREVIEW, urlPreview); // Example
-                        contentValues.put(DBHelper.COLUMN_RATING, Double.parseDouble(rating.getText().toString()));
                         contentValues.put(DBHelper.COLUMN_UNWATCHED, 0);
                         contentValues.put(DBHelper.COLUMN_VIEWED, 0);
                         contentValues.put(DBHelper.COLUMN_RATED, 1);
@@ -154,10 +155,6 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
                 } else {
                     unwatched = true;
 
-                    contentValues.put(DBHelper.COLUMN_ID, (Integer) idMovie);
-                    contentValues.put(DBHelper.COLUMN_NAME, nameMovie.getText().toString());
-                    contentValues.put(DBHelper.COLUMN_PREVIEW, urlPreview); // Example
-                    contentValues.put(DBHelper.COLUMN_RATING, Double.parseDouble(rating.getText().toString()));
                     contentValues.put(DBHelper.COLUMN_UNWATCHED, 1);
                     contentValues.put(DBHelper.COLUMN_VIEWED, 0);
                     if (rated) {
@@ -178,6 +175,7 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
                         database.insert(DBHelper.TABLE_MOVIES, null, contentValues);
                     }
 
+                    viewed = false;
                     btnWillWatch.setImageResource(R.drawable.ic_bookmark_added_32dp);
 
                     Toast toast = Toast.makeText(getContext(), "Добавлено в Буду смотреть", Toast.LENGTH_SHORT);
@@ -191,10 +189,6 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
                     viewed = false;
 
                     if (rated) {
-                        contentValues.put(DBHelper.COLUMN_ID, (Integer) idMovie);
-                        contentValues.put(DBHelper.COLUMN_NAME, nameMovie.getText().toString());
-                        contentValues.put(DBHelper.COLUMN_PREVIEW, urlPreview); // Example
-                        contentValues.put(DBHelper.COLUMN_RATING, Double.parseDouble(rating.getText().toString()));
                         contentValues.put(DBHelper.COLUMN_UNWATCHED, 0);
                         contentValues.put(DBHelper.COLUMN_VIEWED, 0);
                         contentValues.put(DBHelper.COLUMN_RATED, 1);
@@ -213,10 +207,6 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
                 } else {
                     viewed = true;
 
-                    contentValues.put(DBHelper.COLUMN_ID, (Integer) idMovie);
-                    contentValues.put(DBHelper.COLUMN_NAME, nameMovie.getText().toString());
-                    contentValues.put(DBHelper.COLUMN_PREVIEW, urlPreview); // Example
-                    contentValues.put(DBHelper.COLUMN_RATING, Double.parseDouble(rating.getText().toString()));
                     contentValues.put(DBHelper.COLUMN_UNWATCHED, 0);
                     contentValues.put(DBHelper.COLUMN_VIEWED, 1);
                     if (rated) {
@@ -236,6 +226,7 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
                         database.insert(DBHelper.TABLE_MOVIES, null, contentValues);
                     }
 
+                    unwatched = false;
                     btnUnwatch.setImageResource(R.drawable.ic_check_circle_32dp);
                     tvUnwatched.setText("Просмотрено");
 
@@ -246,6 +237,37 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
                 break;
             }
         }
+
+        cursor = database.query(DBHelper.TABLE_MOVIES, null, null, null, null, null, null);
+
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(DBHelper.COLUMN_ID);
+            int nameIndex = cursor.getColumnIndex(DBHelper.COLUMN_NAME);
+            int ratingIndex = cursor.getColumnIndex(DBHelper.COLUMN_RATING);
+            int previewIndex = cursor.getColumnIndex(DBHelper.COLUMN_PREVIEW);
+            int unwatchedIndex = cursor.getColumnIndex(DBHelper.COLUMN_UNWATCHED);
+            int ratedIndex = cursor.getColumnIndex(DBHelper.COLUMN_RATED);
+            int viewedIndex = cursor.getColumnIndex(DBHelper.COLUMN_VIEWED);
+            do {
+
+                String row = "";
+
+                row += "id=" + cursor.getInt(idIndex) + " ";
+                row += "name=" + cursor.getString(nameIndex) + " ";
+                //row += "url=" + cursor.getString(previewIndex) + " ";
+                row += "rating=" + cursor.getDouble(ratingIndex) + " ";
+
+                row += "unwatched=" + cursor.getInt(unwatchedIndex) + " ";
+                row += "rated=" +  cursor.getInt(ratedIndex) + " ";
+                row += "viewed=" + cursor.getInt(viewedIndex) + " ";
+
+                Log.d("mLog", row);
+
+            } while (cursor.moveToNext());
+        }
+
+        Log.d("mLog", String.valueOf(unwatched) + " " + rated + " " + viewed);
+
         dbHelper.close();
     }
 
@@ -337,6 +359,7 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
                 toast.show();
 
                 ratingDialog.dismiss();
+
                 dbHelper.close();
             }
         });
@@ -392,7 +415,6 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
                         database.insert(DBHelper.TABLE_MOVIES, null, contentValues);
                     }
 
-
                     btnRate.setImageResource(R.drawable.ic_star_32dp);
                     tvRated.setText("Оценено");
 
@@ -400,6 +422,7 @@ public class MovieFragment extends Fragment implements View.OnClickListener{
                     toast.show();
                 }
                 ratingDialog.dismiss();
+
                 dbHelper.close();
             }
         });

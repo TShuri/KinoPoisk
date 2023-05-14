@@ -43,8 +43,8 @@ public class HomeFragment extends Fragment{
 
         movies = new ArrayList<>();
 
-        KinoPoisk kinoPoisk = new KinoPoisk();
-        kinoPoisk.execute();
+        HomeApi homeApi = new HomeApi();
+        homeApi.execute();
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -68,7 +68,7 @@ public class HomeFragment extends Fragment{
         binding = null;
     }
 
-    public class KinoPoisk extends AsyncTask <Void, Void, List<Movie>>{
+    public class HomeApi extends AsyncTask <Void, Void, List<Movie>>{
         private ProgressDialog loadDialog = new ProgressDialog(getActivity());
         private String apiKey = "88916739-94f0-46b3-bdac-b96201304527";
         private String urlReleases = "https://kinopoiskapiunofficial.tech/api/v2.1/films/releases?year=2023&month=MARCH&page=1";
